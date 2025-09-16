@@ -98,3 +98,7 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 Library
+Temp
+AssetData
+sinsakai20250920/Assets/ts.meta
+sinsakai20250920/obj/Debug/Assembly-CSharp.csproj.AssemblyReference.cache
