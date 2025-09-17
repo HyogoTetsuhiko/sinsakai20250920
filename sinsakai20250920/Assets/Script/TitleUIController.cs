@@ -16,4 +16,14 @@ public class TitleUIController : MonoBehaviour
         howToPlayPanel.SetActive(false);
         titlePanel.SetActive(true);
     }
+
+    // ★ ゲームシーンへの移行（フェード付き）
+    public void StartGame()
+    {
+        FadeManager fm = FindObjectOfType<FadeManager>();
+        if (fm != null)
+            fm.FadeToScene("GameScene");
+        else
+            Debug.LogError("FadeManager が見つかりません！");
+    }
 }
