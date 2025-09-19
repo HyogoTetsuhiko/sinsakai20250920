@@ -3,7 +3,7 @@ using System.Collections;
 
 public class WaveManager : MonoBehaviour
 {
-    // --- Wave設定用クラス ---
+
     [System.Serializable]
     public class Wave
     {
@@ -32,7 +32,6 @@ public class WaveManager : MonoBehaviour
     [Header("通常敵用スポーンポイント")]
     public Transform[] spawnPoints;             // 通常敵のスポーンポイント配列
 
-    // --- Wave管理用変数 ---
     private int currentWaveIndex = 0;           // 現在のWave番号
     private int spawnedEnemies = 0;             // そのWaveで出現済みの通常敵数
     private float timer = 0f;                   // 出現間隔用タイマー
@@ -50,9 +49,7 @@ public class WaveManager : MonoBehaviour
 
         Wave wave = waves[currentWaveIndex];
 
-        // ====================
         // ボス生成処理
-        // ====================
         // ボスWaveでまだボスが出ていなければ1体だけ生成
         if (wave.isBossWave && !wave.bossSpawned)
         {
@@ -60,9 +57,7 @@ public class WaveManager : MonoBehaviour
             wave.bossSpawned = true; // フラグを立てることで再生成防止
         }
 
-        // ====================
         // 通常敵生成処理
-        // ====================
         if (wave.enemyCount > 0 && spawnedEnemies < wave.enemyCount)
         {
             timer += Time.deltaTime; // タイマーを進める（経過時間を加算）
@@ -88,9 +83,7 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // ====================
         // Wave終了判定
-        // ====================
         // 通常敵を全て出し切ったらWave終了
         if (spawnedEnemies >= wave.enemyCount)
         {
@@ -103,9 +96,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    // ====================
     // Wave開始処理
-    // ====================
     void StartWave(int index)
     {
         if (index >= waves.Length)
@@ -125,17 +116,13 @@ public class WaveManager : MonoBehaviour
         Debug.Log($"Wave {currentWaveIndex + 1} 開始！");
     }
 
-    // ====================
     // 次のWave開始
-    // ====================
     void StartNextWave()
     {
         StartWave(currentWaveIndex + 1);
     }
 
-    // ====================
     // 通常敵生成
-    // ====================
     void SpawnEnemy()
     {
         Wave wave = waves[currentWaveIndex];
@@ -159,9 +146,7 @@ public class WaveManager : MonoBehaviour
         if (ec != null) ec.speed = wave.enemySpeed;
     }
 
-    // ====================
     // ボス生成
-    // ====================
     void SpawnBoss()
     {
         Wave wave = waves[currentWaveIndex];

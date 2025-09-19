@@ -46,7 +46,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- 弾を発射 ---
+    // 弾を発射
     void Shoot()
     {
         if (bulletPrefab == null || shootPoint == null) return;
@@ -60,7 +60,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- ダメージ処理 ---
+    // ダメージ処理
     public void TakeDamage(int damageAmount)
     {
         currentHP -= damageAmount;
@@ -70,17 +70,17 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- 死亡処理 ---
+    // 死亡処理
     void Die()
     {
-        // ① 爆発エフェクトを生成（一定時間後に自動削除）
+        // 爆発エフェクトを生成（一定時間後に自動削除）
         if (explosionPrefab != null)
         {
             GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
             Destroy(explosion, explosionLifeTime); // 指定秒後に消える
         }
 
-        // ② 効果音を再生（AudioSource用の一時オブジェクトを生成）
+        // 効果音を再生（AudioSource用の一時オブジェクトを生成）
         if (explosionSE != null)
         {
             GameObject audioObj = new GameObject("ExplosionSound");
@@ -92,7 +92,7 @@ public class EnemyController : MonoBehaviour
         Destroy(gameObject); // 敵本体を削除
     }
 
-    // --- プレイヤーとの接触判定 ---
+    // プレイヤーとの接触判定
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // プレイヤーに接触した場合

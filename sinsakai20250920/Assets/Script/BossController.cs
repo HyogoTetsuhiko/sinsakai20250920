@@ -122,10 +122,14 @@ public class BossController : MonoBehaviour
         Debug.Log("ボス フェーズ2突入！");
     }
 
-    // 撃破処理
+    // ====================
+    // ボス撃破処理
+    // ====================
     void Die()
     {
         Debug.Log("ボス撃破！");
+
+        // Coroutine を使って、撃破時の演出（爆発・効果音・待機・シーン遷移）を順番に処理
         StartCoroutine(DieRoutine());
     }
 
@@ -136,13 +140,21 @@ public class BossController : MonoBehaviour
         {
             for (int i = 0; i < explosionCount; i++)
             {
+                // ボス周囲のランダム位置に爆発エフェクトを生成
                 Vector3 randomOffset = new Vector3(
-                    Random.Range(-explosionRadius, explosionRadius),
-                    Random.Range(-explosionRadius, explosionRadius),
-                    0f
+                    Random.Range(-explosionRadius, explosionRadius), // X方向ランダム
+                    Random.Range(-explosionRadius, explosionRadius), // Y方向ランダム
+                    0f // Zは2Dなので0
                 );
 
-                GameObject explosion = Instantiate(explosionPrefab, transform.position + randomOffset, Quaternion.identity);
+                // エフェクトを生成
+                GameObject explosion = Instantiate(
+                    explosionPrefab,           // プレハブ
+                    transform.position + randomOffset, // ボス位置にランダムオフセット
+                    Quaternion.identity        // 回転なし
+                );
+
+                // 一定時間後に自動で破壊してメモリ解放
                 Destroy(explosion, explosionLifeTime);
             }
         }
@@ -150,22 +162,31 @@ public class BossController : MonoBehaviour
         // 効果音再生
         if (explosionSE != null)
         {
+            // AudioSourceを新規生成せずにワンショットで再生
+            // AudioSource.PlayClipAtPoint は3D空間の位置に音を鳴らす
             AudioSource.PlayClipAtPoint(explosionSE, transform.position);
         }
 
-        // 指定秒待つ（Time.timeScale に影響されない）
+        // 一定時間待機
+        // WaitForSecondsRealtime は Time.timeScale の影響を受けない
+        // （ゲームが一時停止中でも待機時間が正確に経過）
         yield return new WaitForSecondsRealtime(sceneChangeDelay);
 
         // シーン遷移
+        // ClearScene に遷移
+        // この時点でボスオブジェクトは破棄されるか、シーン移動で自動破棄される
         SceneManager.LoadScene("ClearScene");
     }
 
-    // 衝突判定
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // 当たったオブジェクトが "Bullet" タグか確認
         if (collision.CompareTag("Bullet"))
         {
+            // 弾を破壊
             Destroy(collision.gameObject);
+
+            // ボスにダメージ
             TakeDamage(1);
         }
     }
