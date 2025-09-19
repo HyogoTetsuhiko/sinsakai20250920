@@ -14,13 +14,16 @@ public class EnemyController : MonoBehaviour
     public Transform shootPoint;      // 弾を撃つ位置
     public float shootInterval = 2f;  // 発射間隔
 
+    [Header("プレイヤー接触設定")]
+    public int damage = 1;            // プレイヤーに与えるダメージ量
+
     private float shootTimer = 0f;
 
     void Start()
     {
         currentHP = maxHP;
 
-        // 敵スプライトが上向きの場合、左向きに回転
+        // スプライトが上向きの場合、左向きに回転
         transform.rotation = Quaternion.Euler(0f, 0f, 90f);
     }
 
@@ -38,25 +41,25 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // --- 弾を発射 ---
     void Shoot()
     {
         if (bulletPrefab == null || shootPoint == null) return;
 
-        // 弾を生成
         GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
 
-        // Rigidbody2D があれば弾を進ませる
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.velocity = bullet.transform.up * 5f;  // 左向きに飛ばす
+            // 弾の向きに沿って飛ばす
+            rb.velocity = bullet.transform.up * 5f;
         }
     }
 
-    // ダメージ処理
-    public void TakeDamage(int damage)
+    // --- ダメージ処理 ---
+    public void TakeDamage(int damageAmount)
     {
-        currentHP -= damage;
+        currentHP -= damageAmount;
         if (currentHP <= 0)
         {
             Die();
@@ -66,6 +69,30 @@ public class EnemyController : MonoBehaviour
     void Die()
     {
         Destroy(gameObject);
-        // スコア加算やエフェクト生成もここで可能
+        // 必要であればスコア加算やエフェクト生成
+    }
+
+    // --- プレイヤーとの接触判定 ---
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        // プレイヤーに接触した場合
+        if (collision.CompareTag("Player"))
+        {
+            // PlayerHealth スクリプトを取得
+            PlayerHealth ph = collision.GetComponent<PlayerHealth>();
+            if (ph != null)
+            {
+                ph.TakeDamage(damage);  // プレイヤーにダメージ
+            }
+
+            Destroy(gameObject); // 接触した敵を削除
+        }
+
+        // プレイヤー弾に当たった場合
+        if (collision.CompareTag("Bullet"))
+        {
+            Destroy(collision.gameObject); // 弾を削除
+            TakeDamage(1);                // 敵にダメージ
+        }
     }
 }

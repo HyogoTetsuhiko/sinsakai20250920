@@ -7,32 +7,36 @@ public class WaveManager : MonoBehaviour
     [System.Serializable]
     public class Wave
     {
-        [Header("通常敵")]
-        public int enemyCount = 5;           // このWaveで出す通常敵の数
-        public float spawnInterval = 2f;     // 通常敵の出現間隔
-        public float enemySpeed = 3f;        // 通常敵の移動速度
-        public GameObject[] enemyPrefabs;    // このWaveで使う通常敵Prefabの配列
+        [Header("通常敵設定")]
+        public GameObject[] enemyPrefabs;       // このWaveで出す敵Prefabの配列
+        public int enemyCount = 5;              // このWaveで出す総数
+        public float spawnInterval = 1f;        // 敵を出す間隔
+        public float enemySpeed = 3f;           // 敵の移動速度
 
-        [Header("ボス用設定")]
-        public bool isBossWave = false;      // ボスWaveかどうかのフラグ
-        public GameObject bossPrefab;        // ボスPrefab
-        public Transform bossSpawnPoint;     // ボス出現位置（固定）
+        [Header("同時出現設定")]
+        public bool spawnMultipleAtOnce = false; // trueなら同時に複数出す
+        public int simultaneousCount = 1;        // 同時出現数（spawnMultipleAtOnce=true時に使用）
+
+        [Header("ボスWave設定")]
+        public bool isBossWave = false;         // このWaveがボスWaveか
+        public GameObject bossPrefab;           // ボスPrefab
+        public Transform bossSpawnPoint;        // ボスの出現位置
     }
 
     [Header("Wave設定")]
-    public Wave[] waves;                     // Wave配列（インスペクタで設定）
+    public Wave[] waves;                        // インスペクタでWaveを設定
 
-    [Header("スポーンポイント（通常敵用）")]
-    public Transform[] spawnPoints;          // 通常敵の出現ポイント配列
+    [Header("通常敵用スポーンポイント")]
+    public Transform[] spawnPoints;             // 通常敵の出現ポイント配列
 
-    private int currentWaveIndex = 0;        // 現在のWave番号
-    private int spawnedEnemies = 0;          // 現在出現済み敵の数
-    private float timer = 0f;                // 出現タイマー
-    private bool spawning = false;           // Wave中かどうか
+    private int currentWaveIndex = 0;           // 現在のWave番号
+    private int spawnedEnemies = 0;             // 出現済み敵の数
+    private float timer = 0f;                   // 出現間隔タイマー
+    private bool spawning = false;              // Wave出現中フラグ
 
     void Start()
     {
-        // ゲーム開始時は最初のWaveをスタート
+        // ゲーム開始時に最初のWaveをスタート
         StartWave(0);
     }
 
@@ -40,39 +44,64 @@ public class WaveManager : MonoBehaviour
     {
         if (!spawning) return; // Wave中でなければ何もしない
 
-        timer += Time.deltaTime; // タイマー更新
-
         Wave wave = waves[currentWaveIndex];
 
-        // --- 通常敵の出現処理 ---
-        if (!wave.isBossWave && timer >= wave.spawnInterval)
+        // --- ボスWave処理 ---
+        if (wave.isBossWave)
         {
-            timer = 0f;
-            SpawnEnemy(); // 敵を生成
-            spawnedEnemies++;
-
-            // Wave終了判定
-            if (spawnedEnemies >= wave.enemyCount)
+            // ボスは1体のみ生成
+            if (spawnedEnemies == 0)
             {
+                SpawnBoss();
+                spawnedEnemies = 1;
                 spawning = false;
-                // 次のWaveを少し遅らせて開始
-                Invoke(nameof(StartNextWave), 3f);
+
+                // 次Wave開始まで少し余裕をもたせる
+                Invoke(nameof(StartNextWave), 5f);
             }
+            return;
         }
 
-        // --- ボスWave処理 ---
-        if (wave.isBossWave && spawnedEnemies == 0)
+        // --- 通常敵出現処理 ---
+        timer += Time.deltaTime;
+        if (timer >= wave.spawnInterval)
         {
-            SpawnBoss();         // ボス生成
-            spawnedEnemies = 1;  // ボスは1体のみ
-            spawning = false;
+            timer = 0f;
 
-            // 次Wave開始まで少し余裕をもたせる
-            Invoke(nameof(StartNextWave), 5f);
+            if (wave.spawnMultipleAtOnce)
+            {
+                // 同時出現数だけ敵を生成
+                int spawnNum = Mathf.Min(wave.simultaneousCount, wave.enemyCount - spawnedEnemies);
+
+                for (int i = 0; i < spawnNum; i++)
+                {
+                    SpawnEnemy();
+                    spawnedEnemies++;
+                }
+
+                // Wave終了判定
+                if (spawnedEnemies >= wave.enemyCount)
+                {
+                    spawning = false;
+                    Invoke(nameof(StartNextWave), 3f); // 次Wave開始まで少し遅延
+                }
+            }
+            else
+            {
+                // 1体ずつ出現
+                SpawnEnemy();
+                spawnedEnemies++;
+
+                if (spawnedEnemies >= wave.enemyCount)
+                {
+                    spawning = false;
+                    Invoke(nameof(StartNextWave), 3f);
+                }
+            }
         }
     }
 
-    // --- Wave開始処理 ---
+    // --- Wave開始 ---
     void StartWave(int index)
     {
         if (index >= waves.Length)
@@ -89,13 +118,13 @@ public class WaveManager : MonoBehaviour
         Debug.Log($"Wave {currentWaveIndex + 1} 開始！");
     }
 
-    // --- 次のWave開始 ---
+    // --- 次のWaveを開始 ---
     void StartNextWave()
     {
         StartWave(currentWaveIndex + 1);
     }
 
-    // --- 通常敵出現処理 ---
+    // --- 通常敵生成 ---
     void SpawnEnemy()
     {
         Wave wave = waves[currentWaveIndex];
@@ -112,10 +141,10 @@ public class WaveManager : MonoBehaviour
         // ランダムにスポーンポイントを選択
         Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
 
-        // 敵を生成
+        // 敵生成
         GameObject enemy = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
 
-        // 敵の移動速度をWaveに合わせる
+        // 敵の速度を設定
         EnemyController ec = enemy.GetComponent<EnemyController>();
         if (ec != null)
         {
@@ -123,7 +152,7 @@ public class WaveManager : MonoBehaviour
         }
     }
 
-    // --- ボス出現処理 ---
+    // --- ボス生成 ---
     void SpawnBoss()
     {
         Wave wave = waves[currentWaveIndex];
@@ -134,9 +163,7 @@ public class WaveManager : MonoBehaviour
             return;
         }
 
-        // ボスを生成
         Instantiate(wave.bossPrefab, wave.bossSpawnPoint.position, Quaternion.identity);
-
         Debug.Log("ボス出現！");
     }
 }

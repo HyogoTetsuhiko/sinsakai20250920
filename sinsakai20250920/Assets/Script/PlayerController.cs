@@ -1,26 +1,40 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("移動設定")]
     public float moveSpeed = 5f;        // 上下移動スピード
-    public GameObject bulletPrefab;    // 弾プレハブ
-    public Transform shootPoint;       // 発射位置（子オブジェクトにEmptyを置くと便利）
     [SerializeField] float minY = -4f;
     [SerializeField] float maxY = 4f;
+
+    [Header("攻撃設定")]
+    public GameObject bulletPrefab;     // 弾プレハブ
+    public Transform shootPoint;        // 発射位置（子オブジェクト）
+
     private Rigidbody2D rb;
     private float moveInput;
+
+    // HP管理用コンポーネント
+    private PlayerHealth playerHealth;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        // PlayerHealth を取得
+        playerHealth = GetComponent<PlayerHealth>();
+        if (playerHealth == null)
+        {
+            Debug.LogError("PlayerHealth コンポーネントがアタッチされていません！");
+        }
     }
 
     void Update()
     {
-        // 上下移動入力（W/S または ↑/↓）
+        // 上下移動入力取得
         moveInput = Input.GetAxisRaw("Vertical");
-        // ↑ Unity標準の InputManager で "Vertical" は W/S と ↑/↓ が紐づいている
 
         // 攻撃
         if (Input.GetKeyDown(KeyCode.Space))
@@ -31,9 +45,10 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 上下移動
         rb.velocity = new Vector2(0f, moveInput * moveSpeed);
 
-        // 位置制限
+        // 移動範囲の制限
         Vector2 clampedPos = rb.position;
         clampedPos.y = Mathf.Clamp(clampedPos.y, minY, maxY);
         rb.position = clampedPos;
@@ -43,11 +58,33 @@ public class PlayerController : MonoBehaviour
     {
         if (bulletPrefab != null && shootPoint != null)
         {
+            // 弾を生成（回転なし）
             Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
         }
         else
         {
             Debug.LogWarning("bulletPrefab または shootPoint が設定されていません！");
+        }
+    }
+
+    // ----------------------------
+    // 敵や敵弾との衝突判定
+    // ----------------------------
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (playerHealth == null) return;
+
+        // 敵弾に接触した場合
+        if (collision.CompareTag("EnemyBullet"))
+        {
+            Destroy(collision.gameObject);       // 弾を削除
+            playerHealth.TakeDamage(1);         // PlayerHealthにダメージを委譲
+        }
+
+        // 敵に接触した場合（接触ダメージ）
+        if (collision.CompareTag("Enemy"))
+        {
+            playerHealth.TakeDamage(1);         // PlayerHealthにダメージを委譲
         }
     }
 }

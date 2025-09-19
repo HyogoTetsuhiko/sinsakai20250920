@@ -1,27 +1,26 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
     [Header("HP設定")]
-    public int maxHP = 5;             // プレイヤーの最大HP
+    public int maxHP = 5;             // 最大HP
     private int currentHP;            // 現在のHP
 
     [Header("UI設定")]
-    public Slider hpSlider;           // World Space Canvas 上の HPバー（Slider）
-    public Image fillImage;           // Slider の Fill Image 部分
-    public Vector3 offset = new Vector3(0, 1.5f, 0); // 頭上に表示する位置
+    public Slider hpSlider;           // HPバーのSlider
+    public Image fillImage;           // HPバーのFill部分
+    public Vector3 offset = new Vector3(0, 1.5f, 0); // プレイヤー頭上表示位置
 
-    [Header("HPバーの色")]
-    public Color fullColor = Color.green;   // HP50%以上
-    public Color midColor = Color.yellow;   // HP50%以下
-    public Color lowColor = Color.red;      // HP20%以下
+    [Header("HPバー色")]
+    public Color fullColor = Color.green;
+    public Color midColor = Color.yellow;
+    public Color lowColor = Color.red;
 
     void Start()
     {
-        // ゲーム開始時に HP を最大値に設定
-        currentHP = maxHP;
+        currentHP = maxHP;            // HP初期化
 
         if (hpSlider != null)
         {
@@ -29,7 +28,7 @@ public class PlayerHealth : MonoBehaviour
             hpSlider.value = currentHP;
         }
 
-        UpdateFillColor();
+        UpdateFillColor();            // 色を初期化
     }
 
     void Update()
@@ -41,26 +40,31 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    // ダメージを受ける処理
+    // ----------------------------
+    // ダメージ処理
+    // ----------------------------
     public void TakeDamage(int damage)
     {
         currentHP -= damage;
-        currentHP = Mathf.Clamp(currentHP, 0, maxHP);
+        currentHP = Mathf.Clamp(currentHP, 0, maxHP); // HP範囲制限
 
         if (hpSlider != null)
         {
-            hpSlider.value = currentHP;
+            hpSlider.value = currentHP;  // UI更新
         }
 
-        UpdateFillColor();
+        UpdateFillColor();               // 色更新
 
+        // HPが0になったら死亡処理
         if (currentHP <= 0)
         {
             Die();
         }
     }
 
-    // HP割合に応じて色を変える
+    // ----------------------------
+    // HPに応じてバーの色を変える
+    // ----------------------------
     void UpdateFillColor()
     {
         if (fillImage == null) return;
@@ -75,12 +79,12 @@ public class PlayerHealth : MonoBehaviour
             fillImage.color = fullColor;
     }
 
-    // プレイヤー死亡時の処理
+    // ----------------------------
+    // プレイヤー死亡処理
+    // ----------------------------
     void Die()
     {
-        Debug.Log("プレイヤー死亡！ ゲームオーバーシーンに移行します");
-
-        // ★ ゲームオーバーシーンへ切り替え
+        Debug.Log("プレイヤー死亡！ゲームオーバーシーンへ移行");
         SceneManager.LoadScene("GameOverScene");
     }
 }
