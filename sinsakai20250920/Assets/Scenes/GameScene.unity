@@ -1008,6 +1008,7 @@ Transform:
   - {fileID: 528014780}
   - {fileID: 322989805}
   - {fileID: 1782288528}
+  - {fileID: 2005264749}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1422085490
@@ -1040,19 +1041,38 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waves:
-  - enemyCount: 15
-    enemiesPerSpawn: 4
+  - enemyCount: 1
     spawnInterval: 7
     enemySpeed: 2
-  - enemyCount: 20
-    enemiesPerSpawn: 6
+    enemyPrefabs:
+    - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
+    isBossWave: 0
+    bossPrefab: {fileID: 0}
+    bossSpawnPoint: {fileID: 0}
+  - enemyCount: 1
     spawnInterval: 5
     enemySpeed: 3
-  - enemyCount: 25
-    enemiesPerSpawn: 8
+    enemyPrefabs:
+    - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
+    isBossWave: 0
+    bossPrefab: {fileID: 0}
+    bossSpawnPoint: {fileID: 0}
+  - enemyCount: 1
     spawnInterval: 3
     enemySpeed: 4
-  enemyPrefab: {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
+    enemyPrefabs:
+    - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
+    isBossWave: 0
+    bossPrefab: {fileID: 0}
+    bossSpawnPoint: {fileID: 0}
+  - enemyCount: 1
+    spawnInterval: 3
+    enemySpeed: 4
+    enemyPrefabs:
+    - {fileID: 6189798677646523424, guid: 2d81270fdea50964da6f3cbbeaf62ea0, type: 3}
+    isBossWave: 1
+    bossPrefab: {fileID: 6189798677646523424, guid: 2d81270fdea50964da6f3cbbeaf62ea0, type: 3}
+    bossSpawnPoint: {fileID: 2005264749}
   spawnPoints:
   - {fileID: 1382242243}
   - {fileID: 177826481}
@@ -1063,6 +1083,7 @@ MonoBehaviour:
   - {fileID: 528014780}
   - {fileID: 322989805}
   - {fileID: 1782288528}
+  - {fileID: 2005264749}
 --- !u!4 &1422085492
 Transform:
   m_ObjectHideFlags: 0
@@ -1376,6 +1397,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: -3, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1382242243}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2005264748
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2005264749}
+  m_Layer: 0
+  m_Name: BossSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2005264749
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2005264748}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: -4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
