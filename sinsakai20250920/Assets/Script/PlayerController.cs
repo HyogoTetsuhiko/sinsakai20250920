@@ -76,9 +76,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ----------------------------
     // “G‚â“G’e‚Æ‚ÌÕ“Ë”»’è
-    // ----------------------------
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (playerHealth == null) return;

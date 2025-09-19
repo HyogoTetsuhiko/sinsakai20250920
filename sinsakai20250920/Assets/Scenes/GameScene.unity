@@ -1536,6 +1536,10 @@ PrefabInstance:
       value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
+      propertyPath: maxHP
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
       propertyPath: hpSlider
       value: 
       objectReference: {fileID: 1438816870}
@@ -1543,6 +1547,14 @@ PrefabInstance:
       propertyPath: fillImage
       value: 
       objectReference: {fileID: 115256303}
+    - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
+      propertyPath: explosionSE
+      value: 
+      objectReference: {fileID: 8300000, guid: b60659bfdb8529647ad78d4a85b9a1a5, type: 3}
+    - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
+      propertyPath: explosionPrefab
+      value: 
+      objectReference: {fileID: 7616645071537522988, guid: a6de6f9443f539f439733fe6b6fca450, type: 3}
     - target: {fileID: 8251584852625746990, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
       propertyPath: shootSE
       value: 
