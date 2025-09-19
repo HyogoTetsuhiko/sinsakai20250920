@@ -1097,7 +1097,7 @@ MonoBehaviour:
   waves:
   - enemyPrefabs:
     - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
-    enemyCount: 20
+    enemyCount: 1
     spawnInterval: 5
     enemySpeed: 3
     spawnMultipleAtOnce: 1
@@ -1105,9 +1105,10 @@ MonoBehaviour:
     isBossWave: 0
     bossPrefab: {fileID: 0}
     bossSpawnPoint: {fileID: 0}
+    bossSpawned: 0
   - enemyPrefabs:
     - {fileID: 4923938129399659165, guid: b372ebd9bed64794fa9fee157ca50a62, type: 3}
-    enemyCount: 30
+    enemyCount: 1
     spawnInterval: 3
     enemySpeed: 4
     spawnMultipleAtOnce: 1
@@ -1115,10 +1116,11 @@ MonoBehaviour:
     isBossWave: 0
     bossPrefab: {fileID: 0}
     bossSpawnPoint: {fileID: 0}
+    bossSpawned: 0
   - enemyPrefabs:
     - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
     - {fileID: 4923938129399659165, guid: b372ebd9bed64794fa9fee157ca50a62, type: 3}
-    enemyCount: 50
+    enemyCount: 1
     spawnInterval: 2
     enemySpeed: 4
     spawnMultipleAtOnce: 1
@@ -1126,6 +1128,7 @@ MonoBehaviour:
     isBossWave: 0
     bossPrefab: {fileID: 0}
     bossSpawnPoint: {fileID: 0}
+    bossSpawned: 0
   - enemyPrefabs:
     - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
     - {fileID: 4923938129399659165, guid: b372ebd9bed64794fa9fee157ca50a62, type: 3}
@@ -1134,10 +1137,11 @@ MonoBehaviour:
     spawnInterval: 3
     enemySpeed: 4
     spawnMultipleAtOnce: 1
-    simultaneousCount: 1
+    simultaneousCount: 5
     isBossWave: 1
     bossPrefab: {fileID: 6189798677646523424, guid: 2d81270fdea50964da6f3cbbeaf62ea0, type: 3}
     bossSpawnPoint: {fileID: 2005264749}
+    bossSpawned: 0
   spawnPoints:
   - {fileID: 1382242243}
   - {fileID: 177826481}
@@ -1148,7 +1152,6 @@ MonoBehaviour:
   - {fileID: 528014780}
   - {fileID: 322989805}
   - {fileID: 1782288528}
-  - {fileID: 2005264749}
 --- !u!4 &1422085492
 Transform:
   m_ObjectHideFlags: 0
