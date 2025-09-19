@@ -33,7 +33,7 @@ public class EnemyBullet : MonoBehaviour
             PlayerHealth playerHealth = collision.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(1); // ダメージ量を指定
+                playerHealth.TakeDamage(10); // ダメージ量を指定
             }
 
             Destroy(gameObject); // 弾を破壊

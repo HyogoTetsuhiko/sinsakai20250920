@@ -613,7 +613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e741cd6ae74cd084589707c9eb45232c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 1
+  maxHP: 100
   hpSlider: {fileID: 1438816870}
   fillImage: {fileID: 115256303}
   offset: {x: 0, y: 1, z: 0}
