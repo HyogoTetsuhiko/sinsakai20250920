@@ -17,6 +17,11 @@ public class EnemyController : MonoBehaviour
     [Header("プレイヤー接触設定")]
     public int damage = 1;            // プレイヤーに与えるダメージ量
 
+    [Header("破壊演出設定")]
+    public GameObject explosionPrefab; // 爆発エフェクトPrefab
+    public AudioClip explosionSE;      // 爆発効果音
+    public float explosionLifeTime = 1.5f; // 爆発エフェクトの生存時間
+
     private float shootTimer = 0f;
 
     void Start()
@@ -51,7 +56,6 @@ public class EnemyController : MonoBehaviour
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            // 弾の向きに沿って飛ばす
             rb.velocity = bullet.transform.up * 5f;
         }
     }
@@ -66,10 +70,26 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // --- 死亡処理 ---
     void Die()
     {
-        Destroy(gameObject);
-        // 必要であればスコア加算やエフェクト生成
+        // ① 爆発エフェクトを生成（一定時間後に自動削除）
+        if (explosionPrefab != null)
+        {
+            GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            Destroy(explosion, explosionLifeTime); // 指定秒後に消える
+        }
+
+        // ② 効果音を再生（AudioSource用の一時オブジェクトを生成）
+        if (explosionSE != null)
+        {
+            GameObject audioObj = new GameObject("ExplosionSound");
+            AudioSource tempSource = audioObj.AddComponent<AudioSource>();
+            tempSource.PlayOneShot(explosionSE);
+            Destroy(audioObj, explosionSE.length); // 再生終了後に削除
+        }
+
+        Destroy(gameObject); // 敵本体を削除
     }
 
     // --- プレイヤーとの接触判定 ---
@@ -78,14 +98,13 @@ public class EnemyController : MonoBehaviour
         // プレイヤーに接触した場合
         if (collision.CompareTag("Player"))
         {
-            // PlayerHealth スクリプトを取得
             PlayerHealth ph = collision.GetComponent<PlayerHealth>();
             if (ph != null)
             {
-                ph.TakeDamage(damage);  // プレイヤーにダメージ
+                ph.TakeDamage(damage);
             }
 
-            Destroy(gameObject); // 接触した敵を削除
+            Die(); // 演出付きで破壊
         }
 
         // プレイヤー弾に当たった場合

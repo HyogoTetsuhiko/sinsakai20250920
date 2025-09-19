@@ -1537,7 +1537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
       propertyPath: maxHP
-      value: 10
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: 2246731125940178776, guid: 307eeda8c987f9e408b4e90e00ec2537, type: 3}
       propertyPath: hpSlider

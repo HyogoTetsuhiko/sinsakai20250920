@@ -25,114 +25,127 @@ public class WaveEnemyController : MonoBehaviour
 
     private float shootTimer = 0f;      // 弾発射用タイマー
 
+    [Header("破壊演出設定")]
+    public GameObject explosionPrefab;   // 爆発エフェクトPrefab
+    public AudioClip explosionSE;        // 爆発効果音
+    public float explosionLifeTime = 1.5f; // エフェクトが残る時間（秒）
+
     void Start()
     {
-        // HPを初期化
         currentHP = maxHP;
-
-        // 出現時の位置を保存（波動の基準になる）
         startPosition = transform.position;
     }
 
     void Update()
     {
-        // --- 左方向に前進 ---
+        // 左方向に移動
         transform.position += Vector3.left * speed * Time.deltaTime;
 
-        // --- 波動（上下移動） ---
+        // 波動（上下移動）
         elapsedTime += Time.deltaTime;
         float yOffset = Mathf.Sin(elapsedTime * waveFrequency) * waveAmplitude;
         transform.position = new Vector3(transform.position.x, startPosition.y + yOffset, transform.position.z);
 
-        // --- 弾発射タイマー ---
+        // 弾発射
         shootTimer += Time.deltaTime;
         if (shootTimer >= shootInterval)
         {
             shootTimer = 0f;
-            ShootAtPlayer(); // プレイヤーに向かって弾を発射
+            ShootAtPlayer();
         }
 
-        // --- 画面外判定（左端を通過したら削除） ---
+        // 画面外で削除
         if (Camera.main != null)
         {
-            // ワールド座標の左端を取得
             float leftBound = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 0)).x;
-
-            // 敵の右端が左端より左に出たら削除
-            if (transform.position.x + 0.5f < leftBound) // 0.5fは敵の半幅調整
+            if (transform.position.x + 0.5f < leftBound)
             {
                 Destroy(gameObject);
             }
         }
     }
 
-    // --- プレイヤーに向かって弾を発射する処理 ---
+    // プレイヤーに向かって弾を撃つ処理
     void ShootAtPlayer()
     {
-        // 弾Prefabまたは発射位置が設定されていなければ何もしない
+        // 弾のPrefabか発射位置が未設定なら何もしない
         if (bulletPrefab == null || shootPoint == null) return;
 
-        // シーン内のPlayerオブジェクトを取得
+        // シーン内から"Player"タグのついたオブジェクトを探す
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null) return; // Playerが存在しなければ発射しない
+        if (player == null) return; // プレイヤーがいなければ発射しない
 
-        // 弾を生成
+        // 弾を生成（発射位置に生成、回転は初期値）
         GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
 
-        // プレイヤー方向への単位ベクトルを計算
+        // プレイヤーの方向を計算して単位ベクトルに変換
         Vector2 direction = (player.transform.position - shootPoint.position).normalized;
 
-        // Rigidbody2Dがあれば速度を設定
+        // 弾にRigidbody2Dがあるなら、速度を設定して発射
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.velocity = direction * bulletSpeed;
+            rb.velocity = direction * bulletSpeed; // 弾速をかけて進行方向を決定
         }
 
-        // 弾の向きをプレイヤー方向に回転
+        // 弾の向きをプレイヤー方向に回転させる（見た目が自然になる）
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         bullet.transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
-    // --- ダメージを受ける処理 ---
+    // ダメージを受けたときの処理
     public void TakeDamage(int damage)
     {
+        // 現在のHPからダメージ分を引く
         currentHP -= damage;
 
-        // HPが0以下になったら破壊
+        // HPが0以下なら死亡処理を呼び出す
         if (currentHP <= 0)
         {
             Die();
         }
     }
 
-    // --- 敵破壊処理 ---
+
+    // 破壊処理
     void Die()
     {
-        Destroy(gameObject);
-        // スコア加算や破壊エフェクトもここに追加可能
+        // 爆発エフェクトを生成（一定時間後に自動削除）
+        if (explosionPrefab != null)
+        {
+            GameObject explosion = Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+            Destroy(explosion, explosionLifeTime); // 指定秒後に削除
+        }
+
+        // 効果音を再生（別オブジェクトで再生してから削除）
+        if (explosionSE != null)
+        {
+            GameObject audioObj = new GameObject("ExplosionSound");
+            AudioSource tempSource = audioObj.AddComponent<AudioSource>();
+            tempSource.PlayOneShot(explosionSE);
+            Destroy(audioObj, explosionSE.length);
+        }
+
+        Destroy(gameObject); // 敵本体を削除
     }
 
-    // --- 衝突判定 ---
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // プレイヤーと接触した場合
         if (collision.CompareTag("Player"))
         {
             PlayerHealth player = collision.GetComponent<PlayerHealth>();
             if (player != null)
             {
-                player.TakeDamage(1); // ダメージ量は調整
+                player.TakeDamage(contactDamage);
             }
 
-            Destroy(gameObject); // 弾を破壊
+            Die(); // 直接Destroyではなく、演出付き破壊
         }
-    
-        // プレイヤーの弾と接触した場合
+
         if (collision.CompareTag("Bullet"))
         {
-            Destroy(collision.gameObject); // 弾を削除
-            TakeDamage(2);                 // 敵がダメージを受ける
+            Destroy(collision.gameObject);
+            TakeDamage(2);
         }
     }
 }
