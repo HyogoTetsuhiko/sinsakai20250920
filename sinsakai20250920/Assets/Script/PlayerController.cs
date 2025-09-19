@@ -13,6 +13,10 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;     // 弾プレハブ
     public Transform shootPoint;        // 発射位置（子オブジェクト）
 
+    [Header("効果音設定")]
+    public AudioClip shootSE;           // 弾発射音
+    private AudioSource audioSource;    // AudioSource参照
+
     private Rigidbody2D rb;
     private float moveInput;
 
@@ -22,7 +26,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
+        audioSource = GetComponent<AudioSource>();
         // PlayerHealth を取得
         playerHealth = GetComponent<PlayerHealth>();
         if (playerHealth == null)
@@ -60,6 +64,11 @@ public class PlayerController : MonoBehaviour
         {
             // 弾を生成（回転なし）
             Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
+            // 発射音を鳴らす処理
+            if (shootSE != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(shootSE);
+            }
         }
         else
         {
