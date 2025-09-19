@@ -1130,7 +1130,7 @@ MonoBehaviour:
     - {fileID: 1837075955637772397, guid: 3ab867a718e839b4b9f7e404bcbb28b8, type: 3}
     - {fileID: 4923938129399659165, guid: b372ebd9bed64794fa9fee157ca50a62, type: 3}
     - {fileID: 6189798677646523424, guid: 2d81270fdea50964da6f3cbbeaf62ea0, type: 3}
-    enemyCount: 1
+    enemyCount: 50
     spawnInterval: 3
     enemySpeed: 4
     spawnMultipleAtOnce: 1

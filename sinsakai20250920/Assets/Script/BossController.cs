@@ -20,7 +20,15 @@ public class BossController : MonoBehaviour
     public float spreadAngle = 60f;      // 扇の角度
 
     private float shootTimer = 0f;
-    private bool isPhase2 = false;
+    private bool isPhase2 = false;       // HP半分で行動変化
+
+    [Header("破壊演出設定")]
+    public GameObject explosionPrefab;   // 爆発エフェクトPrefab
+    public AudioClip explosionSE;        // 爆発効果音
+    public int explosionCount = 5;       // 出す爆発の数
+    public float explosionRadius = 2f;   // 爆発を出す範囲
+    public float explosionLifeTime = 1.5f; // エフェクトが残る時間（秒）
+    public float sceneChangeDelay = 2f;  // 演出後にシーン遷移するまでの待ち時間
 
     void Start()
     {
@@ -29,8 +37,8 @@ public class BossController : MonoBehaviour
         // 上向きスプライトを左向きに回転
         transform.rotation = Quaternion.Euler(0f, 0f, 90f);
 
-        // 出現位置を画面右側に設定
-        Vector3 pos = Camera.main.ViewportToWorldPoint(new Vector3(1.2f, 0.5f, 0)); // 画面外右から出現
+        // 出現位置を画面右外に設定（敵がスライドして入ってくる演出）
+        Vector3 pos = Camera.main.ViewportToWorldPoint(new Vector3(1.2f, 0.5f, 0));
         pos.z = 0;
         transform.position = pos;
 
@@ -41,7 +49,7 @@ public class BossController : MonoBehaviour
 
     void Update()
     {
-        // --- 移動処理 ---
+        // 移動処理
         if (!reachedPosition)
         {
             // スポーン位置からターゲット位置まで線形補間で移動
@@ -55,7 +63,7 @@ public class BossController : MonoBehaviour
         }
         else
         {
-            // --- 弾発射処理 ---
+            // 弾発射処理
             shootTimer += Time.deltaTime;
             if (shootTimer >= shootInterval)
             {
@@ -65,55 +73,94 @@ public class BossController : MonoBehaviour
         }
     }
 
-    // 扇状に弾を撃つ
+    // 扇状に弾を撃つ処理
     void ShootFan()
     {
         if (bulletPrefab == null || shootPoint == null) return;
 
+        // 扇状の開始角度と角度間隔を計算
         float startAngle = -spreadAngle / 2f;
         float angleStep = spreadAngle / (bulletCount - 1);
 
+        // bulletCount の数だけ弾を生成
         for (int i = 0; i < bulletCount; i++)
         {
             float angle = startAngle + angleStep * i;
 
-            // ボス回転を考慮
+            // ボスの現在の回転を考慮して発射方向を決定
             Quaternion rot = Quaternion.Euler(0f, 0f, angle) * transform.rotation;
 
             GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, rot);
 
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
             if (rb != null)
-                rb.velocity = bullet.transform.up * 5f;
+                rb.velocity = bullet.transform.up * 5f; // forward/up方向に速度を与える
         }
     }
 
+    // ダメージを受ける処理
     public void TakeDamage(int damage)
     {
         currentHP -= damage;
 
+        // HPが半分以下になったら第2フェーズへ
         if (!isPhase2 && currentHP <= maxHP / 2)
             EnterPhase2();
 
+        // HPが0以下になったら撃破
         if (currentHP <= 0)
             Die();
     }
 
+    // フェーズ2突入処理
     void EnterPhase2()
     {
         isPhase2 = true;
-        shootInterval *= 0.5f;
-        bulletCount += 2;
-        spreadAngle += 20f;
+        shootInterval *= 0.5f;  // 発射間隔を短縮
+        bulletCount += 2;       // 撃つ弾の数を増加
+        spreadAngle += 20f;     // 扇の角度を広げる
         Debug.Log("ボス フェーズ2突入！");
     }
 
+    // 撃破処理
     void Die()
     {
         Debug.Log("ボス撃破！");
+        StartCoroutine(DieRoutine());
+    }
+
+    private System.Collections.IEnumerator DieRoutine()
+    {
+        // 爆発エフェクト
+        if (explosionPrefab != null)
+        {
+            for (int i = 0; i < explosionCount; i++)
+            {
+                Vector3 randomOffset = new Vector3(
+                    Random.Range(-explosionRadius, explosionRadius),
+                    Random.Range(-explosionRadius, explosionRadius),
+                    0f
+                );
+
+                GameObject explosion = Instantiate(explosionPrefab, transform.position + randomOffset, Quaternion.identity);
+                Destroy(explosion, explosionLifeTime);
+            }
+        }
+
+        // 効果音再生
+        if (explosionSE != null)
+        {
+            AudioSource.PlayClipAtPoint(explosionSE, transform.position);
+        }
+
+        // 指定秒待つ（Time.timeScale に影響されない）
+        yield return new WaitForSecondsRealtime(sceneChangeDelay);
+
+        // シーン遷移
         SceneManager.LoadScene("ClearScene");
     }
 
+    // 衝突判定
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Bullet"))
